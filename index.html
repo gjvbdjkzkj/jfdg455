@@ -32,10 +32,9 @@
             overflow: hidden;
         }
 
-        /* شريط الحالة - تعديل الترتيب */
+        /* شريط الحالة */
         .status-bar {
             display: flex;
-            flex-direction: row; /* جعل الترتيب طبيعي حسب اتجاه الصفحة RTL */
             justify-content: space-between;
             padding: 15px 25px 5px;
             color: white;
@@ -45,16 +44,8 @@
 
         .battery-side {
             display: flex;
-            flex-direction: row; /* لضمان ترتيب الأيقونات بجانب بعضها */
             align-items: center;
             gap: 8px;
-        }
-
-        /* ترتيب العناصر داخل جهة البطارية والشبكة */
-        .icons-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .battery-box {
@@ -64,7 +55,7 @@
             padding: 1px;
             display: flex;
             align-items: center;
-            margin-left: 4px; /* مسافة بسيطة بعد النسبة */
+            margin-left: 4px;
         }
         .battery-fill { 
             height: 100%; 
@@ -101,7 +92,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* نافذة USSD القابلة للتحريك */
+        /* نافذة USSD */
         .ussd-box {
             position: absolute;
             bottom: 80px; 
@@ -115,20 +106,38 @@
             user-select: none;
         }
         
-        .ussd-body { text-align: right; margin: 15px 0; font-size: 16px; color: #000; }
-        .black-text { color: #000; font-weight: 700; }
+        .sim-2 { font-size: 14px; color: #666; font-weight: 400; }
+
+        .ussd-body { 
+            text-align: right; 
+            margin: 15px 0; 
+            font-size: 16px; 
+            color: #000; 
+            line-height: 1.6;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* توحيد الأرقام مع النص */
+        .black-text { 
+            color: #000 !important; 
+            font-weight: 400 !important; 
+            font-size: 16px !important;
+            font-family: 'Cairo', sans-serif !important;
+        }
 
         .ussd-input {
             width: 100%; border: none; border-bottom: 2px solid #1a73e8;
             padding: 10px; text-align: right; outline: none;
             background: #f8f9fa; margin-bottom: 20px;
+            font-family: 'Cairo', sans-serif;
         }
 
         .ussd-actions { display: flex; gap: 10px; }
-        .u-btn { flex: 1; padding: 14px; border-radius: 25px; border: none; font-weight: 800; cursor: pointer; }
+        .u-btn { flex: 1; padding: 14px; border-radius: 25px; border: none; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; }
         .u-cancel { background: #f1f3f4; color: #5f6368; cursor: ns-resize; }
         .u-send { background: #1a73e8; color: #fff; }
 
+        /* تطبيقات الشبكة */
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -210,7 +219,7 @@
         </div>
 
         <div class="ussd-box" id="ussdBox">
-            <div class="ussd-head" style="display: flex; justify-content: space-between;"><span class="sim-2">SIM 2</span></div>
+            <div class="ussd-head"><span class="sim-2">SIM 2</span></div>
             <div class="ussd-body" id="ussdContent">
                 تم تحويل <span class="black-text editable" contenteditable="true" id="amount">200</span> جنيه لرقم <span class="black-text editable" contenteditable="true" id="phone-num">01036543568</span>
                 <br> مصاريف الخدمة <span class="black-text editable" contenteditable="true" id="fees">1</span> جنيه . اطلب #9* و اشحن
@@ -268,7 +277,6 @@
 
         btnCancel.addEventListener('mousedown', startDrag);
         btnCancel.addEventListener('touchstart', startDrag);
-
         window.addEventListener('mouseup', stopDrag);
         window.addEventListener('touchend', stopDrag);
 
@@ -285,7 +293,7 @@
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('touchmove', handleMove);
 
-        btnSend.onclick = () => { saveData(); alert("تم الحفظ!"); };
+        btnSend.onclick = () => { saveData(); alert("تم حفظ كل البيانات!"); };
 
         function updateBattery() {
             let text = document.getElementById('battery-text').innerText;
