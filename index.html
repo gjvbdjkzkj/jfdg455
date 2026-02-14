@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperOS UI - Pro Edition</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <style>
+        :root { --miui-blur: blur(25px); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #000;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .phone {
+            width: 400px;  
+            height: 800px;  
+            background: url('https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=2000') center/cover;
+            position: relative;
+            box-shadow: 0 0 80px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        /* شريط الحالة */
+        .status-bar {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            padding: 15px 25px 5px;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .battery-side {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .battery-box {
+            width: 22px; height: 10px;
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 2px;
+            padding: 1px;
+            display: flex;
+            align-items: center;
+        }
+        .battery-fill { 
+            height: 100%; 
+            background: white; 
+            width: 88%;
+            transition: width 0.3s ease;
+        }
+
+        /* الساعة */
+        .clock-container {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+        }
+        .clock-container h1 {
+            font-size: 75px;
+            font-weight: 200;
+            margin: 0;
+            line-height: 1;
+        }
+        .clock-container p { font-size: 14px; opacity: 0.8; margin-top: 8px; }
+
+        /* شريط البحث */
+        .google-bar {
+            width: 90%;
+            margin: 30px auto;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* نافذة USSD */
+        .ussd-box {
+            position: absolute;
+            bottom: 80px; 
+            left: 15px; right: 15px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+            user-select: none;
+        }
+        
+        .ussd-body { text-align: right; margin: 15px 0; font-size: 16px; color: #000; }
+        .black-text { color: #000; font-weight: 700; }
+
+        .ussd-input {
+            width: 100%; border: none; border-bottom: 2px solid #1a73e8;
+            padding: 10px; text-align: right; outline: none;
+            background: #f8f9fa; margin-bottom: 20px;
+        }
+
+        .ussd-actions { display: flex; gap: 10px; }
+        .u-btn { flex: 1; padding: 14px; border-radius: 25px; border: none; font-weight: 800; cursor: pointer; }
+        .u-cancel { background: #f1f3f4; color: #5f6368; cursor: ns-resize; } /* شكل الماوس يوحي بالتحريك */
+        .u-send { background: #1a73e8; color: #fff; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px 25px;
+        }
+        .app { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .icon-sq { width: 58px; height: 58px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: white; }
+        .app-text { color: white; font-size: 10px; font-weight: 600; }
+
+        .nav-bar {
+            position: absolute; bottom: 0; width: 100%; height: 60px;
+            display: flex; justify-content: space-around; align-items: center; padding: 0 70px;
+        }
+        .nav-shape { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.5); }
+
+        [contenteditable="true"]:focus { background: rgba(0,0,0,0.05); outline: none; }
+    </style>
+</head>
+<body>
+
+    <div class="phone" id="phoneArea">
+        <div class="status-bar">
+            <div class="time-side"><span class="editable" contenteditable="true" id="time-top">١١:٣٣</span></div>
+            <div class="battery-side">
+                <div class="battery-box"><div class="battery-fill" id="battery-level"></div></div>
+                <span class="editable" contenteditable="true" id="battery-text">٨٨٪</span>
+                <i class="fas fa-signal" style="font-size: 10px;"></i>
+                <i class="fas fa-wifi" style="font-size: 10px;"></i>
+            </div>
+        </div>
+
+        <div class="clock-container">
+            <h1 class="editable" contenteditable="true" id="time-big">١١:٣٣</h1>
+            <p class="editable" contenteditable="true" id="date-text">الأربعاء، ٢٤ مايو</p>
+        </div>
+
+        <div class="google-bar"><span class="google-text" style="color:white; opacity:0.6">بحث Google...</span><i class="fas fa-microphone" style="color:white"></i></div>
+
+        <div class="grid">
+            <div class="app"><div class="icon-sq" style="background:#25D366"><i class="fab fa-whatsapp"></i></div><span class="app-text">واتساب</span></div>
+            <div class="app"><div class="icon-sq" style="background:#1877F2"><i class="fab fa-facebook"></i></div><span class="app-text">فيسبوك</span></div>
+            <div class="app"><div class="icon-sq" style="background:#0088cc"><i class="fab fa-telegram"></i></div><span class="app-text">تيليجرام</span></div>
+            <div class="app"><div class="icon-sq" style="background:#FF0000"><i class="fab fa-youtube"></i></div><span class="app-text">يوتيوب</span></div>
+        </div>
+
+        <div class="ussd-box" id="ussdBox">
+            <div class="ussd-head" style="display: flex; justify-content: space-between;"><span class="sim-2">SIM 2</span></div>
+            <div class="ussd-body" id="ussdContent">
+                تم تحويل <span class="black-text editable" contenteditable="true" id="amount">200</span> جنيه لرقم <span class="black-text editable" contenteditable="true" id="phone-num">01036543568</span>
+                <br> مصاريف الخدمة <span class="black-text editable" contenteditable="true" id="fees">1</span> جنيه . اطلب #9* و اشحن
+            </div>
+            <input type="text" class="ussd-input">
+            <div class="ussd-actions">
+                <button class="u-btn u-cancel" id="btnCancel">Cancel</button>
+                <button class="u-btn u-send" id="btnSend">Send</button>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="nav-shape" style="border-radius:3px"></div>
+            <div class="nav-shape" style="border-radius:50%"></div>
+            <div class="nav-shape" style="border:none; border-left:2px solid white; border-bottom:2px solid white; transform:rotate(45deg); width:13px; height:13px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const ussdBox = document.getElementById('ussdBox');
+        const btnCancel = document.getElementById('btnCancel');
+        const btnSend = document.getElementById('btnSend');
+        let isDragging = false;
+
+        // --- 1. نظام الحفظ التلقائي ---
+        function saveData() {
+            const data = {
+                time: document.getElementById('time-top').innerText,
+                battery: document.getElementById('battery-text').innerText,
+                date: document.getElementById('date-text').innerText,
+                amount: document.getElementById('amount').innerText,
+                phone: document.getElementById('phone-num').innerText,
+                fees: document.getElementById('fees').innerText,
+                bottomPos: ussdBox.style.bottom
+            };
+            localStorage.setItem('hyperos_data', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('hyperos_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('time-top').innerText = document.getElementById('time-big').innerText = data.time;
+                document.getElementById('battery-text').innerText = data.battery;
+                document.getElementById('date-text').innerText = data.date;
+                document.getElementById('amount').innerText = data.amount;
+                document.getElementById('phone-num').innerText = data.phone;
+                document.getElementById('fees').innerText = data.fees;
+                ussdBox.style.bottom = data.bottomPos || '80px';
+                updateBattery();
+            }
+        }
+
+        // --- 2. التحريك الفوري بمجرد لمس Cancel ---
+        const startDrag = () => { isDragging = true; ussdBox.style.transition = 'none'; };
+        const stopDrag = () => { isDragging = false; ussdBox.style.transition = 'bottom 0.1s ease'; saveData(); };
+
+        btnCancel.addEventListener('mousedown', startDrag);
+        btnCancel.addEventListener('touchstart', startDrag);
+
+        window.addEventListener('mouseup', stopDrag);
+        window.addEventListener('touchend', stopDrag);
+
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let phoneRect = document.getElementById('phoneArea').getBoundingClientRect();
+            
+            // حساب المسافة من الأسفل
+            let newBottom = phoneRect.bottom - clientY - 30; 
+            
+            // حدود التحريك (من 20 بكسل إلى 600 بكسل)
+            if (newBottom > 20 && newBottom < 600) {
+                ussdBox.style.bottom = newBottom + 'px';
+            }
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove);
+
+        // زر Send يحفظ ويغلق وضع التحريك
+        btnSend.onclick = () => { saveData(); alert("تم الحفظ!"); };
+
+        // --- 3. مزامنة الوقت والبطارية ---
+        function updateBattery() {
+            let text = document.getElementById('battery-text').innerText;
+            let percent = text.replace(/[^0-9٠-٩]/g, '').replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+            let val = parseInt(percent) || 0;
+            document.getElementById('battery-level').style.width = Math.min(val, 100) + '%';
+        }
+
+        document.querySelectorAll('.editable').forEach(el => {
+            el.addEventListener('input', () => {
+                if(el.id === 'time-top' || el.id === 'time-big') {
+                    document.getElementById('time-top').innerText = document.getElementById('time-big').innerText = el.innerText;
+                }
+                updateBattery();
+                saveData();
+            });
+        });
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
