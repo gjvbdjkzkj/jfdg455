@@ -2,237 +2,252 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاكاة واجهة شاومي - تحريك النوافذ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HyperOS Full Responsive</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     
     <style>
-        :root {
-            --bg-ui: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000');
-            --system-font: 'Cairo', sans-serif;
-            --miui-radius: 22px;
-            --phone-width: 400px;
-            --phone-height: 888px; 
+        :root { --miui-blur: blur(25px); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
+        
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden; background: #000;
+            font-family: 'Cairo', sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--system-font); outline: none; }
-
-        body { 
-            background-color: #1a1a1a; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-        }
-
-        .phone-frame {
-            width: var(--phone-width);
-            height: var(--phone-height);
-            background: var(--bg-ui) center/cover;
+        /* حاوية الهاتف: تأخذ أبعاد الشاشة أوتوماتيكياً */
+        .phone-screen {
+            width: 100vw;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1620121692029-d088224ddc74?q=80&w=2000') center/cover no-repeat;
             position: relative;
-            overflow: hidden;
-            border: none;
-            border-radius: 0;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
 
+        /* شريط الحالة - يراعي "النوتش" في الهواتف الحديثة */
         .status-bar {
-            height: 44px; padding: 0 25px;
-            display: flex; justify-content: space-between; align-items: center;
-            color: white; z-index: 2000; position: relative; font-size: 14px;
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            padding: env(safe-area-inset-top, 10px) 20px 5px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
         }
 
-        .editable-time { cursor: text; font-weight: 700; }
-        .status-right { display: flex; align-items: center; gap: 8px; }
+        .battery-side { display: flex; align-items: center; gap: 6px; }
+        .battery-box {
+            width: 22px; height: 11px;
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 3px;
+            padding: 1px;
+            display: flex;
+        }
+        .battery-fill { height: 100%; background: white; width: 88%; }
 
-        .app-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 15px; padding: 20px; margin-top: 20px;
+        /* الساعة - تتموضع بنسبة مئوية من ارتفاع الشاشة */
+        .clock-container {
+            text-align: center;
+            color: white;
+            margin-top: 12vh;
+        }
+        .clock-container h1 { font-size: 18vw; font-weight: 200; margin: 0; line-height: 1; }
+        .clock-container p { font-size: 4.5vw; opacity: 0.9; margin-top: 10px; }
+
+        /* شريط البحث المتجاوب */
+        .google-bar {
+            width: 88%;
+            margin: 4vh auto;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .app-item { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
-
-        .icon-box {
-            width: 62px; height: 62px; border-radius: var(--miui-radius);
-            margin-bottom: 8px; display: flex; justify-content: center; align-items: center;
-            font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        /* شبكة الأيقونات - تتغير أحجامها حسب حجم الشاشة */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5vw;
+            padding: 2vh 8vw;
         }
-
-        .app-name { color: white; font-size: 12px; text-align: center; font-weight: 600; pointer-events: none; }
-
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); display: flex; align-items: flex-end;
-            padding-bottom: 80px; z-index: 1500;
+        .app { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .icon-sq { 
+            width: 15vw; height: 15vw; 
+            max-width: 65px; max-height: 65px;
+            border-radius: 22%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 7vw; color: white;
         }
+        .app-text { color: white; font-size: 3vw; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-        .ussd-container {
-            width: 90%; margin: 0 auto; position: relative;
-        }
-
-        .drag-handle {
-            width: 50px; height: 6px; background: rgba(255,255,255,0.8);
-            border-radius: 10px; margin: 0 auto 15px; cursor: grab;
-            transition: opacity 0.5s;
-        }
-
+        /* نافذة USSD - عرضها يتناسب مع التليفون */
         .ussd-box {
-            background: rgba(255, 255, 255, 0.96); border-radius: 32px;
-            padding: 28px; text-align: right; box-shadow: 0 -5px 30px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .header-row { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 10px; margin-bottom: 18px; font-weight: 700; font-size: 18px; 
+            position: absolute;
+            bottom: 15vh; 
+            left: 5%; right: 5%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(30px);
+            border-radius: 30px;
+            padding: 6vw;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            z-index: 1000;
         }
         
-        .sim-tag { background: #e0e0e0; padding: 2px 10px; border-radius: 8px; font-size: 13px; }
+        .ussd-body { text-align: right; margin: 15px 0; font-size: 4.2vw; color: #000; line-height: 1.5; }
+        .black-text { color: #000; font-weight: 800; }
 
-        .msg-text { font-size: 16px; line-height: 1.8; margin-bottom: 25px; color: #111; }
-        .input-line { 
-            width: 100%; height: 52px; border: 2px solid #0078d4; 
-            border-radius: 15px; margin-bottom: 20px; padding: 12px; font-size: 18px; 
+        .ussd-input {
+            width: 100%; border: none; border-bottom: 2px solid #1a73e8;
+            padding: 8px; text-align: right; outline: none;
+            background: transparent; margin-bottom: 20px; font-size: 16px;
         }
 
-        .btn-row { display: flex; gap: 12px; }
-        .btn { flex: 1; padding: 16px; border-radius: 18px; border: none; font-weight: 700; font-size: 17px; cursor: pointer; }
-        .btn-send { background: #0078d4; color: white; }
-        .btn-cancel { background: #f0f0f0; color: #333; }
+        .ussd-actions { display: flex; gap: 10px; }
+        .u-btn { flex: 1; padding: 14px; border-radius: 20px; border: none; font-weight: 800; font-size: 4vw; cursor: pointer; }
+        .u-cancel { background: #f0f0f0; color: #555; }
+        .u-send { background: #f0f0f0; color: #1a73e8; }
 
-        /* تعديلات شريط التنقل ليدعم التحريك */
-        .nav-bar-container {
-            position: absolute; bottom: 12px; width: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            z-index: 2000;
+        /* شريط التنقل السفلي */
+        .nav-bar {
+            position: absolute; bottom: env(safe-area-inset-bottom, 10px); 
+            width: 100%; height: 40px;
+            display: flex; justify-content: space-around; align-items: center; padding: 0 25%;
         }
+        .nav-shape { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.8); }
 
-        .nav-bar { 
-            width: 100%;
-            display: flex; justify-content: space-around; 
-            color: white; opacity: 0.9; font-size: 16px; 
-        }
-
-        .nav-drag-handle {
-            width: 40px; height: 4px; background: rgba(255,255,255,0.6);
-            border-radius: 10px; margin-bottom: 8px; cursor: grab;
-            opacity: 0; transition: opacity 0.5s;
-        }
+        [contenteditable="true"] { outline: none; }
     </style>
 </head>
 <body>
 
-<div class="phone-frame">
-    <div class="status-bar">
-        <div class="editable-time" contenteditable="true">١٢:٥٩</div>
-        <div class="status-right">
-            <i class="fas fa-signal"></i>
-            <i class="fas fa-wifi"></i>
-            <span contenteditable="true">22%</span>
-            <i class="fas fa-battery-full"></i>
-        </div>
-    </div>
-
-    <div class="app-grid">
-        <div class="app-item"><div class="icon-box" style="background: #25D366;"><i class="fab fa-whatsapp" style="color:white"></i></div><div class="app-name">واتساب</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #1877F2;"><i class="fab fa-facebook" style="color:white"></i></div><div class="app-name">فيسبوك</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #0088cc;"><i class="fab fa-telegram" style="color:white"></i></div><div class="app-name">تيليجرام</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #f00;"><i class="fab fa-youtube" style="color:white"></i></div><div class="app-name">يوتيوب</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #fff;"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="35"></div><div class="app-name">جوجل</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #000;"><i class="fab fa-tiktok" style="color:white"></i></div><div class="app-name">تيك توك</div></div>
-        <div class="app-item"><div class="icon-box" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);"><i class="fab fa-instagram" style="color:white"></i></div><div class="app-name">إنستجرام</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #1da1f2;"><i class="fab fa-twitter" style="color:white"></i></div><div class="app-name">تويتر</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #ff9800;"><i class="fas fa-folder-open" style="color:white"></i></div><div class="app-name">الملفات</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #4caf50;"><i class="fas fa-phone" style="color:white"></i></div><div class="app-name">الهاتف</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #03a9f4;"><i class="fas fa-comment" style="color:white"></i></div><div class="app-name">الرسائل</div></div>
-        <div class="app-item"><div class="icon-box" style="background: #8bc34a;"><i class="fas fa-camera" style="color:white"></i></div><div class="app-name">الكاميرا</div></div>
-    </div>
-
-    <div class="overlay" id="overlay">
-        <div class="ussd-container" id="ussdContainer">
-            <div class="drag-handle" id="dragBtn"></div>
-            <div class="ussd-box">
-                <div class="header-row">
-                    <span class="sim-tag" contenteditable="true">2</span>
-                    <span contenteditable="true">معلومات شركة الاتصالات</span>
-                </div>
-                <div class="msg-text" contenteditable="true">
-                    تم تحويل 200 جنيه لرقم 
-                    01036543568 مصاريف الخدمة 1 
-                    جنيه . اطلب #9* و اشحن 
-                    0:مزيد
-                </div>
-                <div class="input-line" contenteditable="true"></div>
-                <div class="btn-row">
-                    <button class="btn btn-cancel" onclick="document.getElementById('overlay').style.display='none'">إلغاء</button>
-                    <button class="btn btn-send">إرسال</button>
-                </div>
+    <div class="phone-screen" id="phoneArea">
+        <div class="status-bar">
+            <div class="time-side"><span class="editable" contenteditable="true" id="time-top">١١:٣٣</span></div>
+            <div class="battery-side">
+                <div class="battery-box"><div class="battery-fill" id="battery-level"></div></div>
+                <span class="editable" contenteditable="true" id="battery-text">٨٨٪</span>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
             </div>
         </div>
-    </div>
 
-    <div class="nav-bar-container" id="navContainer">
-        <div class="nav-drag-handle" id="navDragBtn"></div>
+        <div class="clock-container">
+            <h1 class="editable" contenteditable="true" id="time-big">١١:٣٣</h1>
+            <p class="editable" contenteditable="true" id="date-text">الأربعاء، ٢٤ مايو</p>
+        </div>
+
+        <div class="google-bar">
+            <span style="color:white; opacity:0.7; font-size: 14px;">بحث Google...</span>
+            <i class="fas fa-microphone" style="color:white"></i>
+        </div>
+
+        <div class="grid">
+            <div class="app"><div class="icon-sq" style="background:#25D366"><i class="fab fa-whatsapp"></i></div><span class="app-text">واتساب</span></div>
+            <div class="app"><div class="icon-sq" style="background:#1877F2"><i class="fab fa-facebook"></i></div><span class="app-text">فيسبوك</span></div>
+            <div class="app"><div class="icon-sq" style="background:#0088cc"><i class="fab fa-telegram"></i></div><span class="app-text">تيليجرام</span></div>
+            <div class="app"><div class="icon-sq" style="background:#FF0000"><i class="fab fa-youtube"></i></div><span class="app-text">يوتيوب</span></div>
+        </div>
+
+        <div class="ussd-box" id="ussdBox">
+            <div class="ussd-head" style="display: flex; justify-content: space-between;"><span style="background: #E8F0FE; color: #1967D2; font-size: 10px; padding: 2px 8px; border-radius: 5px; font-weight: bold;">SIM 2</span></div>
+            <div class="ussd-body">
+                تم تحويل <span class="black-text editable" contenteditable="true" id="amount">200</span> جنيه لرقم <span class="black-text editable" contenteditable="true" id="phone-num">01036543568</span>
+                <br> مصاريف الخدمة <span class="black-text editable" contenteditable="true" id="fees">1</span> جنيه . اطلب #9* و اشحن
+            </div>
+            <input type="text" class="ussd-input" readonly>
+            <div class="ussd-actions">
+                <button class="u-btn u-cancel" id="btnCancel">Cancel</button>
+                <button class="u-btn u-send" id="btnSend">Send</button>
+            </div>
+        </div>
+
         <div class="nav-bar">
-            <i class="fas fa-stop"></i>
-            <i class="far fa-circle"></i>
-            <i class="fas fa-chevron-left"></i>
+            <div class="nav-shape" style="border-radius:4px"></div>
+            <div class="nav-shape" style="border-radius:50%"></div>
+            <div class="nav-shape" style="border:none; border-left:2px solid white; border-bottom:2px solid white; transform:rotate(45deg); width:12px; height:12px;"></div>
         </div>
     </div>
-</div>
 
-<script>
-    // وظيفة التحريك العامة
-    function setupDraggable(btnId, containerId) {
-        const btn = document.getElementById(btnId);
-        const container = document.getElementById(containerId);
+    <script>
+        const ussdBox = document.getElementById('ussdBox');
+        const btnCancel = document.getElementById('btnCancel');
         let isDragging = false;
-        let startY, initialTranslateY = 0, currentTranslateY = 0;
-        let hideTimeout;
 
-        function showHandle() {
-            clearTimeout(hideTimeout);
-            btn.style.opacity = '1';
+        // نظام الحفظ
+        function saveData() {
+            const data = {
+                time: document.getElementById('time-top').innerText,
+                battery: document.getElementById('battery-text').innerText,
+                date: document.getElementById('date-text').innerText,
+                amount: document.getElementById('amount').innerText,
+                phone: document.getElementById('phone-num').innerText,
+                fees: document.getElementById('fees').innerText,
+                bottomPos: ussdBox.style.bottom
+            };
+            localStorage.setItem('hyperos_responsive_data', JSON.stringify(data));
         }
 
-        function startHideTimer() {
-            hideTimeout = setTimeout(() => {
-                if (!isDragging) btn.style.opacity = '0';
-            }, 1500);
+        function loadData() {
+            const saved = localStorage.getItem('hyperos_responsive_data');
+            if (saved) {
+                const d = JSON.parse(saved);
+                document.getElementById('time-top').innerText = document.getElementById('time-big').innerText = d.time;
+                document.getElementById('battery-text').innerText = d.battery;
+                document.getElementById('date-text').innerText = d.date;
+                document.getElementById('amount').innerText = d.amount;
+                document.getElementById('phone-num').innerText = d.phone;
+                document.getElementById('fees').innerText = d.fees;
+                ussdBox.style.bottom = d.bottomPos || '15vh';
+                updateBattery();
+            }
         }
 
-        btn.addEventListener('mousedown', (e) => { isDragging = true; startY = e.clientY; showHandle(); });
-        btn.addEventListener('touchstart', (e) => { isDragging = true; startY = e.touches[0].clientY; showHandle(); }, {passive: false});
+        // تحريك النافذة بمجرد لمس Cancel
+        const handleStart = () => { isDragging = true; ussdBox.style.transition = 'none'; };
+        const handleEnd = () => { isDragging = false; ussdBox.style.transition = 'bottom 0.2s ease'; saveData(); };
 
-        window.addEventListener('mousemove', (e) => {
+        btnCancel.addEventListener('mousedown', handleStart);
+        btnCancel.addEventListener('touchstart', handleStart);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
+
+        const onMove = (clientY) => {
             if (!isDragging) return;
-            const deltaY = e.clientY - startY;
-            currentTranslateY = initialTranslateY + deltaY;
-            container.style.transform = `translateY(${currentTranslateY}px)`;
+            let moveY = window.innerHeight - clientY - 30;
+            if (moveY > 10 && moveY < window.innerHeight - 100) {
+                ussdBox.style.bottom = moveY + 'px';
+            }
+        };
+
+        window.addEventListener('mousemove', (e) => onMove(e.clientY));
+        window.addEventListener('touchmove', (e) => onMove(e.touches[0].clientY));
+
+        function updateBattery() {
+            let text = document.getElementById('battery-text').innerText;
+            let val = parseInt(text.replace(/[^0-9٠-٩]/g, '').replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))) || 0;
+            document.getElementById('battery-level').style.width = Math.min(val, 100) + '%';
+        }
+
+        document.querySelectorAll('.editable').forEach(el => {
+            el.addEventListener('input', () => {
+                if(el.id.includes('time')) document.getElementById('time-top').innerText = document.getElementById('time-big').innerText = el.innerText;
+                updateBattery();
+                saveData();
+            });
         });
 
-        window.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            const deltaY = e.touches[0].clientY - startY;
-            currentTranslateY = initialTranslateY + deltaY;
-            container.style.transform = `translateY(${currentTranslateY}px)`;
-            e.preventDefault();
-        }, {passive: false});
-
-        window.addEventListener('mouseup', () => { if (isDragging) { isDragging = false; initialTranslateY = currentTranslateY; startHideTimer(); } });
-        window.addEventListener('touchend', () => { if (isDragging) { isDragging = false; initialTranslateY = currentTranslateY; startHideTimer(); } });
-
-        container.addEventListener('mouseenter', showHandle);
-        container.addEventListener('mouseleave', startHideTimer);
-        container.addEventListener('touchstart', showHandle);
-    }
-
-    // تفعيل التحريك للمربع المنبثق
-    setupDraggable('dragBtn', 'ussdContainer');
-    // تفعيل التحريك لشريط التنقل
-    setupDraggable('navDragBtn', 'navContainer');
-</script>
-
+        window.onload = loadData;
+        document.getElementById('btnSend').onclick = () => alert("تم الحفظ!");
+    </script>
 </body>
 </html>
