@@ -32,10 +32,10 @@
             overflow: hidden;
         }
 
-        /* شريط الحالة */
+        /* شريط الحالة - تعديل الترتيب */
         .status-bar {
             display: flex;
-            flex-direction: row-reverse;
+            flex-direction: row; /* جعل الترتيب طبيعي حسب اتجاه الصفحة RTL */
             justify-content: space-between;
             padding: 15px 25px 5px;
             color: white;
@@ -45,9 +45,18 @@
 
         .battery-side {
             display: flex;
+            flex-direction: row; /* لضمان ترتيب الأيقونات بجانب بعضها */
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ترتيب العناصر داخل جهة البطارية والشبكة */
+        .icons-group {
+            display: flex;
             align-items: center;
             gap: 6px;
         }
+
         .battery-box {
             width: 22px; height: 10px;
             border: 1px solid rgba(255,255,255,0.6);
@@ -55,6 +64,7 @@
             padding: 1px;
             display: flex;
             align-items: center;
+            margin-left: 4px; /* مسافة بسيطة بعد النسبة */
         }
         .battery-fill { 
             height: 100%; 
@@ -143,12 +153,17 @@
 
     <div class="phone" id="phoneArea">
         <div class="status-bar">
-            <div class="time-side"><span class="editable" contenteditable="true" id="time-top">١١:٣٣</span></div>
+            <div class="time-side">
+                <span class="editable" contenteditable="true" id="time-top">١١:٣٣</span>
+            </div>
+            
             <div class="battery-side">
-                <div class="battery-box"><div class="battery-fill" id="battery-level"></div></div>
-                <span class="editable" contenteditable="true" id="battery-text">٨٨٪</span>
-                <i class="fas fa-signal" style="font-size: 10px;"></i>
                 <i class="fas fa-wifi" style="font-size: 10px;"></i>
+                <i class="fas fa-signal" style="font-size: 10px;"></i>
+                <span class="editable" contenteditable="true" id="battery-text" style="margin-right: 4px;">٨٨٪</span>
+                <div class="battery-box">
+                    <div class="battery-fill" id="battery-level"></div>
+                </div>
             </div>
         </div>
 
